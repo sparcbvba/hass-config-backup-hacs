@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+
+# Home Assistant (tijdelijke bestanden tijdens testen)
+*.log
+.storage/
+.cloud/
+deps/
+home-assistant.db
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
+
+# IDE's en Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# HACS / Integratie specifiek
+# We negeren de gedownloade integraties niet, 
+# maar wel eventuele tijdelijke zip-bestanden
+*.zip
+
+# Gevoelige informatie (voor het geval je lokale test-secrets hebt)
+secrets.yaml
