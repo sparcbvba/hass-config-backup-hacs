@@ -1,0 +1,45 @@
+{
+  "services": {
+    "push": {
+      "name": "Hacer push a GitHub",
+      "description": "Activa inmediatamente una copia de seguridad manual en el repositorio de GitHub configurado."
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar copia de seguridad de GitHub",
+        "description": "Ingrese los detalles de su repositorio de GitHub para realizar automáticamente una copia de seguridad de su configuración de Home Assistant.",
+        "data": {
+          "github_repo": "URL HTTPS del repositorio",
+          "github_token": "Token de acceso personal (PAT)",
+          "git_name": "Nombre del autor del commit",
+          "git_email": "Correo electrónico del autor del commit",
+          "commit_interval": "Intervalo de sincronización (en segundos)",
+          "target_paths": "Rutas a sincronizar (separadas por comas)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cambiar la configuración de la copia de seguridad de GitHub",
+        "data": {
+          "github_repo": "URL HTTPS del repositorio",
+          "github_token": "Token de acceso personal (PAT)",
+          "git_name": "Nombre del autor del commit",
+          "git_email": "Correo electrónico del autor del commit",
+          "commit_interval": "Intervalo de sincronización (en segundos)",
+          "target_paths": "Rutas a sincronizar (separadas por comas)"
+        }
+      }
+    }
+  },
+  "issues": {
+    "backup_failed": {
+      "title": "Error en la copia de seguridad de GitHub",
+      "description": "La integración no pudo enviar la configuración a GitHub. Esto puede deberse a un token de acceso personal caducado, un conflicto de fusión o un problema de red. Consulte los registros de Home Assistant para obtener más detalles."
+    }
+  }
+}

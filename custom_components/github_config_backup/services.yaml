@@ -1,0 +1,3 @@
+push:
+  name: Push to GitHub
+  description: Triggers a manual backup to the configured GitHub repository immediately.

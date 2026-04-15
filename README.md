@@ -1,4 +1,6 @@
-# GitHub Config Backup (HACS Integration)
+# ![GitHub Config Backup Banner](images/backup-logo.png)
+
+## GitHub Config Backup (HACS Integration)
 
 A Home Assistant Custom Component that automatically backs up your configuration files to a GitHub repository using native Git operations.
 
@@ -7,6 +9,8 @@ A Home Assistant Custom Component that automatically backs up your configuration
 * **Config Flow UI:** Set up everything directly from the Home Assistant UI (Settings > Devices & Services).
 * **Automatic Syncs:** Runs smoothly in the background on your configured interval.
 * **Dashboard Entities:** Provides a native Button entity (`button.github_backup_nu`) to force a manual sync, and a Sensor entity (`sensor.github_backup_status`) for real-time status updates.
+* **Repairs Dashboard Integration:** Active warnings via the Home Assistant Repairs dashboard if a backup fails due to a token issue or merge conflict.
+* **Home Assistant Service:** Provides a native service (`github_config_backup.push`) that can be used in automations.
 * **Multi-language:** UI supports English, Dutch, and French.
 
 ## Prerequisites

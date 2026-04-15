@@ -1,4 +1,10 @@
 {
+  "services": {
+    "push": {
+      "name": "Push naar GitHub",
+      "description": "Triggert direct een handmatige backup naar de geconfigureerde GitHub repository."
+    }
+  },
   "config": {
     "step": {
       "user": {
@@ -13,6 +19,27 @@
           "target_paths": "Te synchroniseren paden (komma gescheiden)"
         }
       }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GitHub Backup Instellingen Wijzigen",
+        "data": {
+          "github_repo": "Repository HTTPS URL",
+          "github_token": "Persoonlijk Toegangstoken (PAT)",
+          "git_name": "Naam Auteur Commit",
+          "git_email": "E-mail Auteur Commit",
+          "commit_interval": "Sync Interval (in seconden)",
+          "target_paths": "Te synchroniseren paden (komma gescheiden)"
+        }
+      }
+    }
+  },
+  "issues": {
+    "backup_failed": {
+      "title": "GitHub Backup Mislukt",
+      "description": "De integratie kon de configuratie niet naar GitHub pushen. Dit kan komen door een verlopen Personal Access Token, een Merge Conflict, of een netwerkprobleem. Controleer de Home Assistant logboeken voor meer details."
     }
   }
 }

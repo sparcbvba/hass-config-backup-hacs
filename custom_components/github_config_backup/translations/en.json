@@ -1,4 +1,10 @@
 {
+  "services": {
+    "push": {
+      "name": "Push to GitHub",
+      "description": "Triggers a manual backup to the configured GitHub repository immediately."
+    }
+  },
   "config": {
     "step": {
       "user": {
@@ -13,6 +19,27 @@
           "target_paths": "Target paths to sync (comma separated)"
         }
       }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Change GitHub Backup Settings",
+        "data": {
+          "github_repo": "Repository HTTPS URL",
+          "github_token": "Personal Access Token (PAT)",
+          "git_name": "Commit Author Name",
+          "git_email": "Commit Author Email",
+          "commit_interval": "Sync Interval (in seconds)",
+          "target_paths": "Target paths to sync (comma separated)"
+        }
+      }
+    }
+  },
+  "issues": {
+    "backup_failed": {
+      "title": "GitHub Backup Failed",
+      "description": "The integration could not push the configuration to GitHub. This might be due to an expired Personal Access Token, a Merge Conflict, or a network issue. Check the Home Assistant logs for more details."
     }
   }
 }

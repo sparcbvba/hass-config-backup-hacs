@@ -1,0 +1,45 @@
+{
+  "services": {
+    "push": {
+      "name": "Auf GitHub pushen",
+      "description": "Löst sofort ein manuelles Backup auf das konfigurierte GitHub-Repository aus."
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub-Backup konfigurieren",
+        "description": "Geben Sie Ihre GitHub-Repository-Details ein, um automatisch ein Backup Ihrer Home Assistant-Konfiguration zu erstellen.",
+        "data": {
+          "github_repo": "Repository HTTPS URL",
+          "github_token": "Persönliches Zugriffs-Token (PAT)",
+          "git_name": "Name des Commit-Autors",
+          "git_email": "E-Mail des Commit-Autors",
+          "commit_interval": "Synchronisationsintervall (in Sekunden)",
+          "target_paths": "Zu synchronisierende Pfade (kommagetrennt)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GitHub-Backup-Einstellungen ändern",
+        "data": {
+          "github_repo": "Repository HTTPS URL",
+          "github_token": "Persönliches Zugriffs-Token (PAT)",
+          "git_name": "Name des Commit-Autors",
+          "git_email": "E-Mail des Commit-Autors",
+          "commit_interval": "Synchronisationsintervall (in Sekunden)",
+          "target_paths": "Zu synchronisierende Pfade (kommagetrennt)"
+        }
+      }
+    }
+  },
+  "issues": {
+    "backup_failed": {
+      "title": "GitHub-Backup fehlgeschlagen",
+      "description": "Die Integration konnte die Konfiguration nicht an GitHub übertragen. Dies kann an einem abgelaufenen persönlichen Zugriffs-Token, einem Merge-Konflikt oder einem Netzwerkproblem liegen. Überprüfen Sie die Home Assistant-Protokolle für weitere Details."
+    }
+  }
+}
