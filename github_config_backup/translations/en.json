@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure GitHub Backup",
+        "description": "Enter your GitHub repository details to automatically backup your Home Assistant configuration.",
+        "data": {
+          "github_repo": "Repository HTTPS URL",
+          "github_token": "Personal Access Token (PAT)",
+          "git_name": "Commit Author Name",
+          "git_email": "Commit Author Email",
+          "commit_interval": "Sync Interval (in seconds)",
+          "target_paths": "Target paths to sync (comma separated)"
+        }
+      }
+    }
+  }
+}

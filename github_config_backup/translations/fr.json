@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer la sauvegarde GitHub",
+        "description": "Entrez les détails de votre dépôt GitHub pour sauvegarder automatiquement votre configuration Home Assistant.",
+        "data": {
+          "github_repo": "URL HTTPS du dépôt",
+          "github_token": "Jeton d'accès personnel (PAT)",
+          "git_name": "Nom de l'auteur du commit",
+          "git_email": "E-mail de l'auteur du commit",
+          "commit_interval": "Intervalle de synchronisation (en secondes)",
+          "target_paths": "Chemins à synchroniser (séparés par des virgules)"
+        }
+      }
+    }
+  }
+}
