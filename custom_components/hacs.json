@@ -1,0 +1,6 @@
+{
+  "name": "GitHub Config Backup",
+  "render_readme": true,
+  "filename": "github_config_backup",
+  "iot_class": "Local Polling"
+}
