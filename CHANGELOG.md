@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+- **Bugfix**: Fixed a "500 Internal Server Error" when opening the Options Flow via the "Configure" button. Added strict type-casting and safe fallbacks for missing data to prevent the `voluptuous` schema from crashing.
+
 ## 1.1.1
 - **Bugfix**: Fixed a thread-safety issue where the Repairs dashboard (`issue_registry`) was being called from a background executor job instead of the main event loop. This resolves the `asyncio_thread_safety` warning/error in the Home Assistant logs.
 

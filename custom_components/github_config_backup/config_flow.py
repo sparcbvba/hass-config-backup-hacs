@@ -34,6 +34,7 @@ class GitHubBackupOptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
+        super().__init__() # Interne Home Assistant initialisatie aanroepen
         self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
@@ -41,15 +42,30 @@ class GitHubBackupOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        # Combineer originele data met eventuele bestaande opties
-        config = {**self.config_entry.data, **self.config_entry.options}
+        # 1. Haal de opgeslagen data veilig op (val nooit terug op None)
+        config_data = dict(self.config_entry.data)
+        options_data = dict(self.config_entry.options) if self.config_entry.options else {}
+        
+        repo = options_data.get(CONF_REPO) or config_data.get(CONF_REPO) or ""
+        token = options_data.get(CONF_TOKEN) or config_data.get(CONF_TOKEN) or ""
+        name = options_data.get(CONF_NAME) or config_data.get(CONF_NAME) or "Home Assistant"
+        email = options_data.get(CONF_EMAIL) or config_data.get(CONF_EMAIL) or "homeassistant@local.host"
+        paths = options_data.get(CONF_PATHS) or config_data.get(CONF_PATHS) or "configuration.yaml, template/"
 
+        # 2. Zorg dat het interval 100% zeker een integer (getal) is!
+        try:
+            interval = int(options_data.get(CONF_INTERVAL) or config_data.get(CONF_INTERVAL) or 3600)
+        except (ValueError, TypeError):
+            interval = 3600
+
+        # 3. Bouw het formulier met strikte type-castings voor de default waarden
         options_schema = vol.Schema({
-            vol.Required(CONF_REPO, default=config.get(CONF_REPO)): str,
-            vol.Required(CONF_TOKEN, default=config.get(CONF_TOKEN)): str,
-            vol.Optional(CONF_NAME, default=config.get(CONF_NAME, "Home Assistant")): str,
-            vol.Optional(CONF_EMAIL, default=config.get(CONF_EMAIL, "homeassistant@local.host")): str,
-            vol.Optional(CONF_INTERVAL, default=config.get(CONF_INTERVAL, 3600)): int,
-            vol.Optional(CONF_PATHS, default=config.get(CONF_PATHS, "configuration.yaml, template/")): str,
+            vol.Required(CONF_REPO, default=str(repo)): str,
+            vol.Required(CONF_TOKEN, default=str(token)): str,
+            vol.Optional(CONF_NAME, default=str(name)): str,
+            vol.Optional(CONF_EMAIL, default=str(email)): str,
+            vol.Optional(CONF_INTERVAL, default=interval): int,
+            vol.Optional(CONF_PATHS, default=str(paths)): str,
         })
+        
         return self.async_show_form(step_id="init", data_schema=options_schema)
