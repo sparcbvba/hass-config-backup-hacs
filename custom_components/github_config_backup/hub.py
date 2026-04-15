@@ -26,6 +26,21 @@ class GitHubBackupHub:
         if self.sensor_update_callback:
             self.hass.loop.call_soon_threadsafe(self.sensor_update_callback, state)
 
+    def _clear_issue(self):
+        """Verwijder de melding veilig vanuit de hoofd-thread."""
+        ir.async_delete_issue(self.hass, DOMAIN, "backup_failed")
+
+    def _create_issue(self):
+        """Maak een melding aan veilig vanuit de hoofd-thread."""
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            "backup_failed",
+            is_fixable=False,
+            severity=ir.IssueSeverity.ERROR,
+            translation_key="backup_failed",
+        )
+
     def do_backup(self):
         self._update_state("Bezig met voorbereiden...")
         
@@ -86,20 +101,13 @@ class GitHubBackupHub:
                 self._update_state(f"Geen wijzigingen (Laatste check: {datetime.now().strftime('%H:%M')})")
                 _LOGGER.info("Geen wijzigingen gedetecteerd.")
 
-            # Als we hier komen, was het succesvol. We verwijderen eventuele eerdere foutmeldingen (Repairs)
-            ir.async_delete_issue(self.hass, DOMAIN, "backup_failed")
+            # Als we hier komen, was het succesvol. We roepen de event-loop veilig aan:
+            self.hass.loop.call_soon_threadsafe(self._clear_issue)
 
         except Exception as e:
             _LOGGER.error("Fout tijdens GitHub Backup: %s", e)
             self._update_state(f"Fout opgetreden (zie logboek)")
             
-            # Maak een "Repair" item aan voor de gebruiker (Voorstel 3)
-            ir.async_create_issue(
-                self.hass,
-                DOMAIN,
-                "backup_failed",
-                is_fixable=False,
-                severity=ir.IssueSeverity.ERROR,
-                translation_key="backup_failed",
-            )
+            # Reparaties-item aanmaken, maar nu veilig via de threadsafe aanroep:
+            self.hass.loop.call_soon_threadsafe(self._create_issue)
             raise e
