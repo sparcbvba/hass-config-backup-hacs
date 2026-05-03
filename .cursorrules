@@ -1,0 +1,5 @@
+Werk altijd volgens TDD (Test-Driven Development): schrijf eerst een falende test, implementeer daarna de minimale code om de test te laten slagen, en refactor vervolgens.
+Werk altijd de changelog (`CHANGELOG.md`) bij bij elke afgeronde wijziging.
+Werk bij elke afgeronde functionele wijziging altijd de projectversie en build-metadata bij: verhoog indien nodig `package.json` versie en genereer opnieuw `src/js/version-build.js`.
+Als je op de `dev` branch zit, voer dan eerst `git fetch` en `git pull` uit op `dev`, maak daarna eerst een nieuwe feature-branch aan, en begin pas dan met bouwen op het nieuwe plan.
+Voorzie altijd een .gitignore in het geval dit niet aanwezig is, of breid dit uit met de nodige entries.
