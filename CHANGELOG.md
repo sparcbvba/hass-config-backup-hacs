@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3
+- **Behaviour**: Commits and pushes run only when staged content in the configured backup paths actually differs from `HEAD` (`git diff --cached`), instead of using repo-wide `is_dirty(untracked_files=True)`. This avoids empty or noise-driven commits from unrelated untracked files under `/config`.
+- **Remote sync**: Replaced silent pull failures with an explicit `fetch` followed by `merge origin/main` (same merge semantics as before). Network, auth, or merge problems now surface through the existing error handling and Repairs flow instead of only a log warning.
+- **Tests**: Added `pytest` coverage for the staged-vs-HEAD gate (`requirements-test.txt`, `pytest.ini`, `tests/test_git_logic.py`).
+
 ## 1.1.2
 - **Bugfix**: Fixed a "500 Internal Server Error" when opening the Options Flow via the "Configure" button. Added strict type-casting and safe fallbacks for missing data to prevent the `voluptuous` schema from crashing.
 

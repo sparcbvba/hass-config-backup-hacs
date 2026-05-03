@@ -6,6 +6,7 @@ import git
 
 from homeassistant.helpers import issue_registry as ir
 from .const import DOMAIN, CONF_REPO, CONF_TOKEN, CONF_NAME, CONF_EMAIL, CONF_PATHS
+from .git_logic import has_staged_changes_vs_head, sync_from_remote
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,11 +72,9 @@ class GitHubBackupHub:
                 git_config.set_value('user', 'email', email)
                 git_config.set_value('pull', 'rebase', 'false')
 
-            self._update_state("Bezig met pullen...")
-            try:
-                origin.pull('main')
-            except Exception as e:
-                _LOGGER.warning("Git Pull mislukt: %s", e)
+            # Fetch + merge so remote commits land in /config; failures must surface (repairs / logs).
+            self._update_state("Synchroniseren met remote...")
+            sync_from_remote(repo, origin)
 
             self._update_state("Bestanden voorbereiden...")
             target_paths = [p.strip() for p in target_paths_str.split(",")]
@@ -87,19 +86,21 @@ class GitHubBackupHub:
                 else:
                     _LOGGER.warning("Bestand/map overgeslagen: %s", path)
 
-            if repo.is_dirty(untracked_files=True):
+            if has_staged_changes_vs_head(repo):
                 self._update_state("Bezig met committen...")
                 commit_msg = f"Automatische backup: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                 repo.index.commit(commit_msg)
-                
+
                 self._update_state("Bezig met pushen naar GitHub...")
-                origin.push('main')
-                
+                origin.push("main")
+
                 self._update_state(f"Succesvol! (Laatste: {datetime.now().strftime('%H:%M')})")
                 _LOGGER.info("GitHub Backup succesvol afgerond.")
             else:
-                self._update_state(f"Geen wijzigingen (Laatste check: {datetime.now().strftime('%H:%M')})")
-                _LOGGER.info("Geen wijzigingen gedetecteerd.")
+                self._update_state(
+                    f"Geen wijzigingen in backup-paden (Laatste check: {datetime.now().strftime('%H:%M')})"
+                )
+                _LOGGER.info("Geen staged wijzigingen in geconfigureerde paden; geen commit.")
 
             # Als we hier komen, was het succesvol. We roepen de event-loop veilig aan:
             self.hass.loop.call_soon_threadsafe(self._clear_issue)
@@ -110,4 +111,4 @@ class GitHubBackupHub:
             
             # Reparaties-item aanmaken, maar nu veilig via de threadsafe aanroep:
             self.hass.loop.call_soon_threadsafe(self._create_issue)
-            raise e
+            raise
