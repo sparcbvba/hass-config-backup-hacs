@@ -6,7 +6,7 @@ import git
 
 from homeassistant.helpers import issue_registry as ir
 from .const import DOMAIN, CONF_REPO, CONF_TOKEN, CONF_NAME, CONF_EMAIL, CONF_PATHS
-from .git_logic import has_staged_changes_vs_head, sync_from_remote
+from .git_logic import has_staged_changes_vs_head, scrub_token, sync_from_remote
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,18 +54,23 @@ class GitHubBackupHub:
         email = config_data.get(CONF_EMAIL, "homeassistant@local.host")
         target_paths_str = config_data.get(CONF_PATHS, "configuration.yaml, template/")
         
-        auth_repo = repo_url.replace("https://", f"https://{token}@")
+        # The token is deliberately NOT stored in the remote URL: that writes it in
+        # plaintext to /config/.git/config, i.e. inside the directory we back up, where
+        # it also ends up in every Home Assistant backup.
+        # ponytail: the token is still briefly visible in argv (ps on the host);
+        # switch to a credential helper if that matters in your threat model.
+        auth_url = repo_url.replace("https://", f"https://{token}@")
 
         try:
             if not os.path.exists(os.path.join(self.repo_dir, ".git")):
                 self._update_state("Repository initialiseren...")
                 repo = git.Repo.init(self.repo_dir)
-                origin = repo.create_remote('origin', auth_repo)
+                repo.create_remote('origin', repo_url)
                 repo.git.branch('-M', 'main')
             else:
                 repo = git.Repo(self.repo_dir)
-                origin = repo.remotes.origin
-                origin.set_url(auth_repo)
+                # Also repairs existing installs that still have the token stored.
+                repo.remotes.origin.set_url(repo_url)
 
             with repo.config_writer() as git_config:
                 git_config.set_value('user', 'name', name)
@@ -74,7 +79,7 @@ class GitHubBackupHub:
 
             # Fetch + merge so remote commits land in /config; failures must surface (repairs / logs).
             self._update_state("Synchroniseren met remote...")
-            sync_from_remote(repo, origin)
+            sync_from_remote(repo, auth_url)
 
             self._update_state("Bestanden voorbereiden...")
             target_paths = [p.strip() for p in target_paths_str.split(",")]
@@ -92,7 +97,7 @@ class GitHubBackupHub:
                 repo.index.commit(commit_msg)
 
                 self._update_state("Bezig met pushen naar GitHub...")
-                origin.push("main")
+                repo.git.push(auth_url, "HEAD:main")
 
                 self._update_state(f"Succesvol! (Laatste: {datetime.now().strftime('%H:%M')})")
                 _LOGGER.info("GitHub Backup succesvol afgerond.")
@@ -106,7 +111,7 @@ class GitHubBackupHub:
             self.hass.loop.call_soon_threadsafe(self._clear_issue)
 
         except Exception as e:
-            _LOGGER.error("Fout tijdens GitHub Backup: %s", e)
+            _LOGGER.error("Fout tijdens GitHub Backup: %s", scrub_token(e, token))
             self._update_state(f"Fout opgetreden (zie logboek)")
             
             # Reparaties-item aanmaken, maar nu veilig via de threadsafe aanroep:
