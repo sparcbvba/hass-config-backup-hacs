@@ -17,6 +17,7 @@ _git_logic = importlib.util.module_from_spec(_spec)
 assert _spec.loader is not None
 _spec.loader.exec_module(_git_logic)
 has_staged_changes_vs_head = _git_logic.has_staged_changes_vs_head
+scrub_token = _git_logic.scrub_token
 
 
 def _workspace_tmp_dirs():
@@ -62,3 +63,19 @@ def test_untracked_file_outside_staged_paths_does_not_trigger_commit_gate():
         repo.index.commit("init")
         (Path(tmp_path) / "junk.log").write_text("noise\n", encoding="utf-8")
         assert has_staged_changes_vs_head(repo) is False
+
+
+def test_scrub_removes_token_from_real_git_error():
+    """Git echoes the full remote URL in its errors; the token must never reach the log."""
+    token = "ghp_EXAMPLEtoken1234567890"
+    url = f"https://{token}@github.com/owner/repo.git"
+    # Shape mirrors what GitPython raises when a push/fetch is rejected.
+    exc = git.exc.GitCommandError(["git", "push", url, "HEAD:main"], 128, b"remote: Invalid username or password")
+    scrubbed = scrub_token(exc, token)
+    assert token not in scrubbed
+    assert "***" in scrubbed
+
+
+def test_scrub_without_token_is_a_passthrough():
+    assert scrub_token("plain message", "") == "plain message"
+    assert scrub_token("plain message", None) == "plain message"

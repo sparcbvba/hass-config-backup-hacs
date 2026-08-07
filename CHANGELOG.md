@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+- **Security**: The Personal Access Token is no longer stored in the git remote URL. Previously every sync wrote it in plaintext to `/config/.git/config` — inside the very directory being backed up, so it also ended up in every Home Assistant backup and was readable by anything with filesystem access to `/config`. The remote is now stored without credentials and the token is supplied only for the duration of each fetch and push. **Existing installations repair themselves on the next sync**, which rewrites the stored remote URL.
+- **Security**: Git error output is scrubbed before logging (`scrub_token`). Git echoes the full remote URL in its errors, which would otherwise leak the token into the Home Assistant log.
+- **API**: `sync_from_remote(repo, origin)` is now `sync_from_remote(repo, auth_url)` and fetches with an explicit refspec so `refs/remotes/origin/main` stays current; merge semantics are unchanged.
+- **Tests**: Added coverage for token scrubbing against a realistic `GitCommandError`.
+
 ## 1.1.3
 - **Behaviour**: Commits and pushes run only when staged content in the configured backup paths actually differs from `HEAD` (`git diff --cached`), instead of using repo-wide `is_dirty(untracked_files=True)`. This avoids empty or noise-driven commits from unrelated untracked files under `/config`.
 - **Remote sync**: Replaced silent pull failures with an explicit `fetch` followed by `merge origin/main` (same merge semantics as before). Network, auth, or merge problems now surface through the existing error handling and Repairs flow instead of only a log warning.
